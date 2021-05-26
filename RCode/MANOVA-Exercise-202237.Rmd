@@ -1,0 +1,47 @@
+---
+title: "MANOVA-Exercise"
+author: "Jitesh Rawat"
+date: "3/23/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+data <- penguins
+head(data)
+```
+```{r}
+Y <- data %>% select(contains("length"))
+Y <- as.matrix(Y)
+```
+
+```{r}
+G <- data %>% select(species)
+G <- as.vector(G)
+```
+
+```{r}
+# MANOVA test 
+model1 = manova(cbind(bill_length_mm, flipper_length_mm) ~ species,data = data)
+summary(model1)
+```
+
+```{r}
+shapiro.test(model1$residuals)
+#From the below statistics we can make out that the model is not normal
+```
+```{r}
+library(heplots)
+
+res <- boxM(data[,c(3,4,5,6)], data$species)
+res
+plot(res, gplabel="Species")
+#We can see that p-value is less than 0.05 which means the data does not follow the homogenity of variance
+#Even from the plot we can observe the difference in different species
+```
+

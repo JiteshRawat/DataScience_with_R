@@ -1,0 +1,127 @@
+---
+title: "Modelling"
+author: "Jitesh Rawat"
+date: "2/12/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("tidyverse")
+library("caret")
+library("MVN")
+library("ISLR")
+```
+
+```{r}
+data <- datasets::mtcars
+head(data)
+```
+
+```{r}
+plot(data <- mtcars,col= "blue" )#basic plotting to see some pattern in data
+```
+
+```{r}
+featurePlot(x = data[],y= data$mpg)#plotting mpg with other variables this is very important.
+
+#First we can see that am is for Transmission (0 = automatic, 1 = manual) so here automatic transmission of gears give less mpg comparatively than manual.
+
+#2nd in mpg vs gear plot we cam see that 4 gear cars give more mpg as compared to both 3 and 5 gears
+
+#3rd carburetor is part of engine for air–fuel ratio for combustion. We can see that as number of carburetors increase there is decrease in mpg
+
+#4th drat is driver axle ratio which is directly proportional with mpg
+
+#5th the weight vs mpg plot directly shows that its inversely proportional
+
+#6th the qsec i.e performance measure shows that average performing cars i.e. cars with qsec ratio 18 to 20 gives most mpg
+
+#7th 
+
+#8th the cyl vs mpg plot shows that cars with 4 cylinders gives most mpg
+
+#9th Here dist is engine displacement measured in cu in. From the plot we see that it is inversely proportional to mpg and dist depends on no. of cylinders
+
+#10th the horse power vs mpg plot is clear that the more is hp the less mpg.
+```
+
+```{r}
+cormat <- round(cor(data),2)#Trying to infer something from correlation matrix
+head(cormat)
+```
+
+```{r}
+#Getting the 5 point summary of data
+summary(data)
+```   
+```{r}
+#Generating a model other variables than mpg
+model <- lm(mpg~., data= data)
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model)
+summary(model)
+#From this model where mpg vs all we can see that
+#The qqplot shows its normal
+#the Residual vs fitted plot shows a downwards bend curve which is not anticipated
+#the summary is not able to show significant variable that can affect the model, although it shows weight has a significance
+#the R squared value is .869 but it can be made better
+```
+```{r}
+#Generating model with only cyl,dis,hp and drat
+
+model2 <- lm(mpg~., data= data[1:5])
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model2)
+summary(model2)
+#From summary of this model we see that
+#the model is not so normal 
+#In Residuals vs Fitted the curve is reduced but not straight
+#the R squared value is decreased that means we have certainly ignored an important variable from previous model
+#p-value is close to 0
+
+```
+
+```{r}
+#Generating model by adding variables wt,hp,disp
+model3 <- lm(mpg~wt+hp+disp,data=mtcars)
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model3)
+summary(model3)
+#from this model we can see that
+#the weight is certainly significant and horse power too is important factor affecting the mpg
+#the R squared value is .8268 that means there is still some important variable we are missing to consider
+#but residual error increased
+```
+
+```{r}
+#in this model we will try different computations to reduce the residual error
+model4 <- lm(mpg ~ hp*gear+wt*cyl , data =  data)
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model4)
+summary(model4)
+#from this model we see that the as the residual is reduced but model is getting away from being normal
+#the R squared value has increased
+```
+
+```{r}
+#experimenting with computations here and there we get
+model5 <- lm(mpg~wt*cyl+hp*qsec, data = data)
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model5)
+summary(model5)
+#This a model certainly is good one
+#the residual error is almost reduced such that its almost straight line 
+#the R squared value is  0.9016 which is good enough
+#p-value very close to 0
+
+```
+```{r}
+shapiro.test(model5$residuals)
+#the p-value is more than 0.05 that means no need to normalize model
+```
+

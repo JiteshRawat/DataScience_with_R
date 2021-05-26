@@ -1,0 +1,97 @@
+---
+title: "USArrest"
+author: "Jitesh Rawat"
+date: "3/19/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(broom)
+library(knitr)
+#install.packages("ggfortify")
+library(ggfortify)
+
+data <- datasets::swiss
+head(data)
+
+```
+```{r}
+#Compute Smaple Covariance matrix S
+s <- cov(data)
+head(s)
+```
+
+```{r}
+# Computing Eigen Values and Eigen Vectors of S
+eig_val <- eigen(s)
+eig_val$values
+eig_val$vectors
+```
+```{r}
+#Perform PCA
+PC <- as.matrix(data) %*% eig_val$vectors
+ggplot(PC,aes(PC[,1],PC[,3]))+
+  geom_point()
+
+```
+```{r}
+x <- c(1:6)
+y <- eig_val$values
+plot(x,y,type="l", main="Scree Plot")
+
+```
+```{r}
+var(PC[,1])/sum(eig_val$values)
+var(PC[,2])/sum(eig_val$values)
+var(PC[,3])/sum(eig_val$values)
+var(PC[,4])/sum(eig_val$values)
+var(PC[,5])/sum(eig_val$values)
+var(PC[,6])/sum(eig_val$values)
+eig_val$vectors
+names(data)
+#From below PC values we see that 3 components actually suffice
+```
+```{r}
+eigen(cor(data))$vectors
+comp <- prcomp(data)
+summary(comp)
+
+
+y <- eigen(cor(data))$values
+plot(x,y,type="l",main="Scree plot")
+```
+```{r}
+#From the above scree plot we can see that first 4 principal components are enough
+```
+
+```{r}
+data %>% head(10)
+head(comp$x)
+PC1=-0.4569876*0.75 -0.4242141*0.18+  0.5097327*0.056+  0.4543119* -0.3501111*0.0088 -0.1496668*0.002403694
+
+```
+```{r}
+PC <- as.matrix(data) %*% eig_val$vectors
+ggplot(PC,aes(PC[,1],PC[,2]))+
+  geom_point()
+
+#we see that PC 1 and PC 2 are not much correlated
+```
+
+```{r}
+
+ggplot(PC,aes(PC[,2],PC[,3]))+geom_point()
+#We see that there is some positive correlation here
+```
+
+```{r}
+ggplot(PC,aes(PC[,1],PC[,3]))+ geom_point()
+#PC1 and PC3 are not much correlated 
+```
+

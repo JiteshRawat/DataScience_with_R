@@ -1,0 +1,104 @@
+---
+title: "kNN-20237"
+author: "Jitesh Rawat"
+date: "4/16/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+```
+
+```{r}
+df <- penguins
+head(df)
+```
+
+```{r}
+df <- na.omit(df)
+head(df)
+```
+
+```{r}
+n = nrow(df)
+trainIndex = sample(1:n, size = round(0.8*n), replace=FALSE)
+train = df[trainIndex ,]
+test = df[-trainIndex ,]
+```
+
+```{r}
+dim(train)
+dim(test)
+```
+```{r}
+library(caret)
+#?trainControl()
+```
+
+```{r}
+#Using cv
+trn_ctrl <-trainControl(method = "cv", number = 10)
+
+model_knn_cv <- train(species~., data = train, method ="knn",
+                   trControl = trn_ctrl, 
+                   preProcess = c("center", "scale"), 
+                   tuneLength = 10)
+model_knn_cv
+```
+
+```{r}
+#Validation on test data
+prediction_knn <- predict(model_knn_cv,newdata=test)
+confusionMatrix(prediction_knn, reference = test$species, positive = "3")
+
+```
+
+
+```{r}
+#Using repeatedcv
+trn_ctrl <-trainControl(method = "repeatedcv", number = 10, repeats = 3)
+
+model_knn_r_cv <- train(species~., data = train, method ="knn",
+                   trControl = trn_ctrl, 
+                   preProcess = c("center", "scale"), 
+                   tuneLength = 10)
+model_knn_r_cv
+```
+
+```{r}
+#Validation on test data 
+prediction_knn <- predict(model_knn_r_cv,newdata=test)
+confusionMatrix(prediction_knn, reference = test$species, positive = "3")
+```
+
+
+
+```{r}
+#Using repeatedcv
+trn_ctrl <-trainControl(method = "boot", number = 10)
+
+model_knn_boot <- train(species~., data = train, method ="knn",
+                   trControl = trn_ctrl, 
+                   preProcess = c("center", "scale"), 
+                   tuneLength = 10)
+model_knn_boot
+```
+
+```{r}
+#Validation on test data
+prediction_knn <- predict(model_knn_boot,newdata=test)
+confusionMatrix(prediction_knn, reference = test$species, positive = "3")
+```
+
+
+```{r}
+plot(model_knn_cv, main= "method = Cross Validation")
+plot(model_knn_r_cv, main= "method = RepeatedCV")
+plot(model_knn_boot, main= "method = bootstrap")
+```

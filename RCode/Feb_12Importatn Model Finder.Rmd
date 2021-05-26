@@ -1,0 +1,87 @@
+---
+title: "Best Model For MTcars"
+author: "Raghava KV"
+output:  word_document
+
+section_number: TRUE
+editor_options: 
+chunk_output_type: console
+---
+```{r tidyverse}
+# Load the package tidyverse, dplyr is part of tidyverse
+library(tidyverse)
+library(caret)
+library(MVN)
+```
+```{r}
+data=mtcars[,-c(8,9)]
+head(data)
+```
+```{r}
+mod1=lm(mpg ~ wt, data = mtcars)
+summary(mod1)
+plot(mod1)
+
+```
+*Inference*
+*This model is the basic maodel which I tried which find the direct realtion between the weight and the mpg*
+*The error is not normal from the qq plot as it is not striaght*
+*Residuals vs Fitted plot model is not exaclty linear it can be made linear by adding non linear terms*
+*Weight is given 3stars it will effect the model*
+*pvalue is almost near to zero but adjusted r square can be increased*
+*Conclusion : From weight should be considered too*
+```{r}
+mod2=lm(mpg~wt+hp,data=mtcars)
+summary(mod2)
+plot(mod2)
+```
+*Inference*
+*Compared to mod1 it has deceresed adjusted rsquare and residual error pvalue too decrease furthur*
+*Hp importantplays an important role but not as important as weight*
+
+```{r}
+mod2=lm(mpg~wt+hp+disp,data=mtcars)
+summary(mod2)
+plot(mod2)
+```
+*THere is no musch difference between the above model and the below one,if not the decreased addjuste r square *
+*The normal qqplot is also not stright this model *
+```{r}
+mod3=lm(mpg~wt+hp+cyl,data=mtcars)
+summary(mod3)
+plot(mod3)
+```
+*THere is no musch difference between the above model and the below one,if not the decreased addjuste r square *
+*The normal qqplot is also not stright this model *
+*This plot is better than the previous one but cylenders will effect the mpg to a certain effect* 
+```{r}
+mod4=lm(mpg~wt+hp*cyl,data=mtcars)
+summary(mod4)
+plot(mod4)
+```
+*I tried multiplying the hp and cylender,the adjusted r square is encereasing and the residual standard error is decreasing*
+```{r}
+mod5=lm(mpg~wt*cyl+hp*qsec,data=mtcars)
+summary(mod5)
+plot(mod5)
+```
+
+*
+Residual standard error: 2.105 on 25 degrees of freedom
+ Adjusted R-squared:  0.878  p-value: 2.087e-11
+*
+#Number speak themself :-D
+*This is is the best model I came up with, theresidual error is min and the p value is almost near to zero, adjusted r square is not*
+#But the problem is qq plot is not normal
+_Trying to apply boxcock on this model_
+```{r}
+shapiro.test(mod5$residuals)
+```
+#The values are  W = 0.97829, p-value = 0.7484
+So no need to  apply boxcock
+
+
+
+```{r}
+head(mtcars)
+```

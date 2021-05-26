@@ -1,0 +1,108 @@
+---
+title: "Boston assignment"
+author: "Jitesh Rawat"
+date: "2/18/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(caret)
+library(MVN)
+library(MASS)
+library(leaps)
+library(broom)
+```
+
+```{r}
+bosdata <- tibble::as_tibble(Boston)
+head(bosdata)
+```
+
+```{r}
+featurePlot(x= bosdata[],y= bosdata$crim)
+#from this feature plot we can determine correlation of crime with all other variables
+#from these plots we can see that areas with less median vakue of owner occupied homes have more crime rates
+#Also the areas with less weighted distances to five Boston employment centers have more number of crime rates
+#Areas with high index of accessibility to radial highways have high crime rates
+#Higher tax and rad value areas have higher crime rates whereas the lower ones have almost near to 0 crime rates
+```
+
+```{r}
+library(corrplot)
+corrplot(cor(bosdata), type = "upper", tl.col = "black")
+#From the below plot 1st row itself we can see correlation of crim with other variables 
+#the bigger and darker circle depicts strong relattion
+```
+
+```{r}
+library(funModeling) 
+plot_num(bosdata)
+#from this plot we can see that some of the variables have many outliers and are highly undstable
+```
+
+
+
+```{r}
+#Lets create the first model with simply putting all variables against crime variable
+model1= lm(crim~ ., data = bosdata)
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model1)
+summary(model1)
+#From this model it is certain that model does not follow normality
+#some variables like dis rad... seem to be significant
+```
+
+```{r}
+#Creating a model with all significant variables from last model summary
+model2 <- lm(crim~zn+indus+dis*rad+black+medv+nox, data = bosdata)
+par(mfrow=c(2,2),mar=c(4,4,2,0.5))
+plot(model2)
+summary(model2)
+#Still model is unstable i.e not holding normality
+#Certainly this model is not giving best Rsquared value 
+```
+```{r}
+#Trial 3 trying to find good fit with strongly correlated variables
+model3 <- lm(crim~dis*rad+indus*medv,  data = bosdata)
+summary(model3)
+
+```
+```{r}
+model4 <- lm(crim~dis*rad+medv*rad, data = bosdata)
+summary(model4)
+#This model has shown better performance than previous ones
+#we should check its normality for residuals
+```
+
+```{r}
+shapiro.test(model4$residuals)
+#From the test of normality we see that data is not normal as p-value is so close to 0
+```
+
+
+```{r}
+#Thats why we apply boxcox to normalise it
+bc<-boxcox(model4, data=bosdata)
+lambda <- bc$x[which.max(bc$y)]
+lambda
+bosdata$y <- ((bosdata$crim)^lambda-1/lambda)
+new_model <- lm(y~dis*rad+medv*rad, data= bosdata)
+summary(new_model)
+```
+```{r}
+pred_data <- sample_n(bosdata,10)
+predict(model4,pred_data)
+#Trying to predict some random data
+```
+
+```{r}
+pred_data$crim
+```
+
+

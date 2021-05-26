@@ -1,0 +1,136 @@
+---
+title: "Discriminant-Analysis"
+author: "Jitesh Rawat"
+date: "3/26/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data <- read.csv("C:/Users/Jitesh/Downloads/data.csv")
+head(data)
+```
+```{r}
+
+data$famhist <- ifelse(data$famhist=="Present", 1, 0)
+data$chd <- as.factor(data$chd)
+
+```
+
+
+```{r}
+library(caret)
+set.seed(430)
+# Data partition
+index <- createDataPartition(data$chd, p = .80, list = FALSE)
+train <- data[index,]
+test <- data[-index,]
+```
+
+```{r}
+featurePlot(x=train[,1:8], y = train$chd,
+            plot="density",
+            scales= list(x = list(relation = "free"), 
+                        y = list(relation = "free")),
+            adjust = 1.5, 
+            pch = "|",
+            auto.key = list(columns = 2)
+            )
+
+```
+```{r}
+library(ellipse)
+featurePlot(x = train[, 1:2], 
+            y = train$chd,
+            plot = "ellipse",
+            auto.key = list(columns = 2),
+            )
+```
+```{r}
+#LDA
+
+library(MASS)
+model_lda = lda(chd ~ tobacco+ldl+famhist+typea+age, data = train)
+model_lda
+#summary(model_lda)
+```
+
+```{r}
+plot(model_lda) + title("LDA model")
+```
+```{r}
+pred = predict(model_lda,train)
+head(pred$class)
+```
+
+```{r}
+#This is trial to calculate accuracy of LDA
+
+#head(pred$class)
+
+
+calc_class_err = function(actual, predicted) {
+  mean(actual != predicted)
+}
+
+
+
+print("This is calculation class error")
+calc_class_err(actual = train$chd, predicted = pred$class)
+
+
+
+train_table = table(predicted = pred$class, actual = train$chd)
+print("This is training table")
+train_table
+
+
+train_con_mat_lda = confusionMatrix(train_table, positive = "1")
+c(train_con_mat_lda$overall["Accuracy"], 
+  train_con_mat_lda$byClass["Sensitivity"], 
+  train_con_mat_lda$byClass["Specificity"])
+```
+
+```{r}
+#Logistic Regression
+log_model <- glm(chd ~ tobacco+ldl+famhist+typea+age,family = "binomial",data= train )
+summary(log_model)
+```
+
+
+```{r}
+lg_model_pred = ifelse(predict(log_model, type = "link") > 0.5, "1", "0")
+
+
+calc_class_err = function(actual, predicted) {
+  mean(actual != predicted)
+}
+
+
+calc_class_err(actual = train$chd, predicted = lg_model_pred)
+
+train_table = table(predicted = lg_model_pred, actual = train$chd)
+train_table
+
+
+train_con_mat = confusionMatrix(train_table, positive = "1")
+c(train_con_mat$overall["Accuracy"], 
+  train_con_mat$byClass["Sensitivity"], 
+  train_con_mat$byClass["Specificity"])
+```
+
+
+We found that Accuracy of LDA model is around 76% where as of Logistic Regressinon model is 74%
+
+```{r}
+print("Actual data")
+head(train$chd)
+print("Prediction through LDA")
+head(pred$class)
+print("Prediction through logistic regression")
+head(lg_model_pred)
+```
+

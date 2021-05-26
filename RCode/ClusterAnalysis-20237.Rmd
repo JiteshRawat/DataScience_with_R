@@ -1,0 +1,94 @@
+---
+title: "Clustering"
+author: "Jitesh Rawat"
+date: "4/9/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(palmerpenguins)
+data <-penguins
+head(data)
+```
+
+```{r}
+set.seed(123)
+data = na.omit(data)
+data =data[,-c(1,2,7,8)]#Remove the char and categorical data
+head(data)
+dim(data)
+
+```
+```{r}
+wss = (nrow(data)-1)*sum(apply(data,2,var))
+for (i in 2:5)
+ {wss[i] = sum(kmeans(data,centers = i)$withinss)}
+plot(1:5, wss, type="b", xlab="Number of Clusters",
+  ylab="Within groups sum of squares")
+```
+```{r}
+kmeans3 <- kmeans(data, 3)
+kmeans3
+kmeans2 <- kmeans(data, 2)
+kmeans2
+```
+
+```{r}
+testsp <- penguins
+head(testsp)
+testsp <- na.omit(testsp)
+dim(testsp)
+length(kmeans3$cluster)
+#the length of kmeans clusters list should be same as species list observations
+```
+
+
+```{r}
+table(testsp$species, kmeans3$cluster)
+table(testsp$species, kmeans2$cluster)
+```
+```{r}
+plot (data , col =(kmeans3$cluster +1) , main =" K - Means Clustering
+Results with K = 3" ,pch =20 , cex =2)
+```
+```{r}
+idx <- sample(1:dim(data)[1], 25)
+penguinsSample <- data[idx,]
+penguinsSample$species <- NULL
+```
+
+```{r}
+d <- dist(penguinsSample, method = "euclidean") # distance matrix
+fit <- hclust(d, method="ward")
+plot(fit, hang = -1, labels= penguins$species[idx]) #Just plotting it
+rect.hclust(fit, k=3)
+```
+
+
+
+```{r}
+hc.complete = hclust(dist(penguinsSample), method ="complete")
+hc.average = hclust(dist(penguinsSample), method ="average")
+hc.single = hclust(dist(penguinsSample), method ="single")
+```
+
+```{r}
+par(mfrow = c(1,3))#To print all the plots in to one
+plot(hc.complete, main =" Complete Linkage " , cex =.9,labels= penguins$species[idx])
+rect.hclust(hc.complete, k=3)
+groups <- cutree(hc.complete, k=3)
+
+plot(hc.average, main =" Average Linkage " , cex =.9,labels=penguins$species[idx])
+rect.hclust(hc.average, k=3)
+groups <- cutree(hc.average, k=3)
+
+plot(hc.single, main ="Single Linkage " , cex =.9,labels=penguins$species[idx])
+rect.hclust(hc.single, k=3)
+
+
+```
+

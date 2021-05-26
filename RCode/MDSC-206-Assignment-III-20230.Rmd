@@ -1,0 +1,287 @@
+---
+title: "MDSC-206-Assignmet-iii-20230"
+author: "Jyotin Padhi"
+date: "16 February 2021"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+EDA
+
+```{r}
+library("MASS")
+library("tidyverse")
+
+
+#loading dataset
+data<-Boston
+#looking to the first 6 rows
+head(data)
+#getting the column names of the dataset
+names(data)
+#seeing the dimension of dataset
+dim(data)
+```
+
+```{r}
+#getting the summary of the dataset
+summary(data)
+#since we don't have any explanatory variable we can see the five point summary of all variables
+```
+
+
+```{r}
+#check for na values
+sum(is.na(data))
+
+#check for duplicated values
+sum(duplicated(data))
+```
+
+
+```{r}
+library(corrplot)
+
+corrplot(cor(data), method="number", type="upper")
+#here we can see the correlations of crim corresponding to every other variable
+```
+
+
+```{r}
+zn = ggplot(data, aes(x=zn, y=crim)) + geom_point() + labs(title='zn')
+indus = ggplot(data, aes(x=indus, y=crim)) + geom_point() + labs(title='indus')
+chas = ggplot(data, aes(x=chas, y=crim)) + geom_point() + labs(title='chas')
+nox = ggplot(data, aes(x=nox, y=crim)) + geom_point() + labs(title='nox')
+rm = ggplot(data, aes(x=rm, y=crim)) + geom_point() + labs(title='rm')
+age = ggplot(data, aes(x=age, y=crim)) + geom_point() + labs(title='age')
+dis = ggplot(data, aes(x=dis, y=crim)) + geom_point() + labs(title='dis')
+rad = ggplot(data, aes(x=rad, y=crim)) + geom_point() + labs(title='rad')
+tax = ggplot(data, aes(x=tax, y=crim)) + geom_point() + labs(title='tax')
+ptratio = ggplot(data, aes(x=ptratio, y=crim)) + geom_point() + labs(title='ptratio')
+black = ggplot(data, aes(x=black, y=crim)) + geom_point() + labs(title='black')
+lstat = ggplot(data, aes(x=lstat, y=crim)) + geom_point() + labs(title='lstat')
+medv = ggplot(data, aes(x=medv, y=crim)) + geom_point() + labs(title='medv')
+```
+
+```{r}
+zn
+sort(unique(data$zn))
+count(filter(data, zn==0))
+```
+
+```{r}
+indus
+
+unique(data %>% 
+  dplyr::select(indus) %>% 
+  filter(data$crim>4))
+
+#from the graph we can infer that the crime rate is concentrated more in one place
+#the crime rate is more in places having the indus number 18.10 and 19.58
+```
+
+```{r}
+chas
+
+#here we can clearly infer that the crime rate is more in non river area than the places having river
+```
+
+```{r}
+nox
+
+#relatively we can see that the more crime rate is around the region of highly polluted regions(i.e) the pollution level more than 0.5
+```
+
+```{r}
+rm
+
+#we can see that the crime rate is not more in number but higher in the laces with lesser rooms,
+#little higher and more in the places with 5-7 rooms per dwelling
+```
+```{r}
+age
+
+#the crime rate is more in the places where the proportion of owner-occupied units built prior to 1940 is greater than 82.5
+```
+
+```{r}
+dis
+
+ggplot(data, aes(x=dis, y=medv)) + geom_point() + labs(title='dis')
+#It's clearly evident that the crime rate is more in the places where the distance is lesser to the employment centers
+#we can also observe that the value of the houses in these regions are also more hence more crime rate
+```
+
+```{r}
+rad
+
+#it's obvious that the crime rate is even higher where there is lesser accessibility to radal highways
+```
+
+```{r}
+tax
+
+#the crime rate is higher in places where people pay more taxes
+```
+
+```{r}
+ptratio
+
+unique(data %>% 
+  dplyr::select(ptratio) %>% 
+  filter(data$crim>20))
+
+#the crime rate is more in the places where the ptraio is 20.2
+```
+
+```{r}
+black
+
+#the more number of crime rates are concentrated in the area where the black proportion is more
+```
+
+```{r}
+lstat
+
+#the crime rate is more where the lstat is lesser than 15 and higher where the lstat is higher than 15
+```
+
+```{r}
+medv
+
+#crime rate is more where the value is between 12.6 and 24
+```
+
+```{r}
+ggplot(data, mapping=aes(x=crim))+
+  geom_density()
+
+#the density of the crim is shown as below
+```
+
+```{r}
+ggplot(Boston, mapping=aes(x=crim))+
+  geom_histogram(bins=10)+
+  theme_bw()
+
+#here we can infer that there are more number of towns with lesser crime rate whereas lesser towns with higher crime rate
+```
+
+```{r}
+ggplot(data, aes(y=crim))+
+  geom_boxplot()
+
+ggplot(data, aes(y=zn))+
+  geom_boxplot()
+
+ggplot(data, aes(y=indus))+
+  geom_boxplot()
+
+ggplot(data, aes(y=chas))+
+  geom_boxplot()
+
+ggplot(data, aes(y=nox))+
+  geom_boxplot()
+
+ggplot(data, aes(y=rm))+
+  geom_boxplot()
+
+ggplot(data, aes(y=age))+
+  geom_boxplot()
+
+ggplot(data, aes(y=dis))+
+  geom_boxplot()
+
+ggplot(data, aes(y=rad))+
+  geom_boxplot()
+
+ggplot(data, aes(y=tax))+
+  geom_boxplot()
+
+ggplot(data, aes(y=ptratio))+
+  geom_boxplot()
+
+ggplot(data, aes(y=black))+
+  geom_boxplot()
+
+ggplot(data, aes(y=lstat))+
+  geom_boxplot()
+
+ggplot(data, aes(y=medv))+
+  geom_boxplot()
+
+#most of the crime rates are outliers with 3quartiles lying below 5
+```
+
+
+```{r}
+ggplot(data, aes(sample=crim))+
+  geom_qq()
+
+#clearly shows that the crime rate does not follow normal distribution
+```
+
+```{r}
+ggplot(data, aes(x=crim))+
+  geom_bar()
+```
+
+```{r}
+#Check the normality of each column
+for (i in 1:ncol(data)){
+  shapiro.test(data[,i])$p.value %>%print()
+}
+
+#all the columns are not normal
+```
+
+
+MODELS
+
+```{r}
+model <- lm(crim~., data=data)
+summary(model)
+
+#here from the summary we can choose the significat variables to create the model
+```
+
+```{r}
+mod_1 <- lm(crim~-dis+rad*medv+dis*rad, data=data)
+summary(mod_1)
+```
+
+```{r}
+mod_2 <- lm(crim~-dis+rad+dis*rad-medv, data=data)
+summary(mod_2)
+```
+
+```{r}
+data1<-filter(data, medv<35)
+data2<-filter(data1, dis<5.5)
+data3<-filter(data2, crim<8)
+mod_3 <- lm(crim~-dis+rad*medv+dis*rad, data=data3)
+summary(mod_3)
+```
+
+```{r}
+res<-resid(mod_2)
+shapiro.test(res)$p.value
+
+#since the residuals do not follow the normality we need to apply boxcox on the model
+```
+
+```{r}
+bc<-boxcox(crim~-dis+rad*medv+dis*rad, data=data)
+lambda <- bc$x[which.max(bc$y)]
+lambda
+data$y <- ((data$crim)^lambda-1/lambda)
+New_model <- lm(y~-dis+rad*medv+dis*rad, data=data)
+summary(New_model)
+```
+

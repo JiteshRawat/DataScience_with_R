@@ -1,0 +1,176 @@
+---
+title: "ToothGrowth"
+author: "Jitesh Rawat"
+date: "2/26/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lattice)
+library(car)
+library(funModeling)
+```
+
+
+```{r}
+data <- datasets::ToothGrowth
+glimpse(data)
+
+data$dose <- as.factor(data$dose)
+```
+
+```{r}
+#EDA
+#Trying to see relation betewwn supplementaires and length
+ggplot(data, aes(x=supp, y=len))+geom_point()
+
+```
+
+
+```{r}
+
+#Length b
+require(ggplot2)
+ggplot(ToothGrowth, aes(x=factor(dose), y=len, fill=supp)) + 
+  geom_boxplot() +
+  ggtitle('Tooth Length by Supplement Type and Dosage') +
+  xlab('dosage') +
+  ylab('tooth length') +
+  guides(fill=guide_legend(title='Supplement Type'))
+```
+```{r}
+ggplot(data, aes(x=factor(dose),y=len))+geom_point()
+#We see that not much difference in variances of length w.r.t. different doses visually
+```
+
+
+```{r}
+#One way annova
+
+tdata <- data %>% 
+  select(len,supp)
+
+
+```
+
+```{r}
+summary(tdata)
+
+```
+
+
+```{r}
+ggplot(tdata)+
+  aes(supp,len,color=supp)+
+  geom_jitter()+
+  theme(legend.position="none")+
+  labs(title="supp vs len")
+
+```
+
+```{r}
+res_aov <- aov(len ~ supp,data= tdata)
+
+#we check normality with visualistions
+
+par(mfrow=c(1,2)) # combine plots
+
+# histogram
+hist(res_aov$residuals)
+
+qqnorm(res_aov$residuals,xlab = "norm quantiles")
+
+```
+
+```{r}
+#Now we test statistically with shapiro wiks test
+
+shapiro.test(res_aov$residuals)
+#we see with p-value that data is normal
+```
+
+```{r}
+boxplot(len ~ supp, data=tdata)
+```
+```{r}
+dotplot( len ~ supp, data =tdata)
+```
+```{r}
+leveneTest(len ~ supp, data=tdata)
+#From this p-value we can say that we do not reject the null hypothesis that is vairances are equal between supplementaries
+```
+```{r}
+#One way ANNOVA
+
+ggplot(tdata)+
+  aes(supp,len,color=supp)+
+  geom_boxplot()+
+  theme(legend.position="none")+
+  labs(title="Box plots of supplementaries")
+```
+```{r}
+#Some more staistics
+group_by(tdata,supp) %>% 
+     summarise(
+            mean = mean(len,na.rm=TRUE),
+            sd = sd(len,na.rm=TRUE)
+            )
+#we see that mean and sd of lengths are different w.r.t. supplemenaries
+```
+```{r}
+#1st method
+oneway.test(len ~ supp,data = tdata,var.equal = TRUE)
+```
+```{r}
+#2nd method
+res_aov <- aov(len ~ supp,
+               data = tdata)
+summary(res_aov)
+
+#so we observe that the p-value through both tests are same so even in case of equal variances results would not change
+```
+
+```{r}
+#Two way ANNOVA
+
+data <- datasets::ToothGrowth
+
+```
+
+
+```{r}
+ggplot(data)+
+  aes(supp,len,color=dose)+
+  geom_jitter(na.rm = TRUE)+ #  geom_point(position = "jitter")
+  theme(legend.position="right")+
+  labs(title="supp vs len")
+#so we see that visually there is not much difference in lengths w.r.t supplementaries
+```
+
+```{r}
+twa<- aov(len ~ supp+dose,data=data)
+
+par(mfrow=c(1,2)) # combine plots
+plot(twa,2)
+
+```
+```{r}
+shapiro.test(twa$residuals)
+#with shapiro test we see that p-value and we can conclude that data is normal
+```
+
+```{r}
+leveneTest(len ~ supp*factor(dose), data=data)
+#With levene test also we do not reject null hypothesis that means variances are similar
+```
+```{r}
+summary(twa)
+
+```
+

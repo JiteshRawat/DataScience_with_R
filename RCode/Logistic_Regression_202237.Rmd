@@ -1,0 +1,88 @@
+---
+title: "Logistic Regression"
+author: "Jitesh Rawat"
+date: "3/5/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(caret)
+```
+
+```{r}
+data <- penguins
+head(data)
+```
+```{r}
+dim(data)
+```
+
+```{r}
+data <- na.omit(data)
+dim(data)
+```
+```{r}
+set.seed(42)
+index = sample(nrow(data), 276)
+train_d = data[index, ]
+test_d= data[-index,]
+dim(train_d)
+
+```
+```{r}
+train_data= train_d
+test_data = test_d
+```
+
+
+```{r}
+train_data$sex = as.numeric(train_data$sex)-1
+test_data$sex = as.numeric(test_data$sex)-1
+head(train_data)
+```
+
+```{r}
+lg_model = glm(sex~flipper_length_mm+bill_length_mm+bill_depth_mm,data = train_data,family = "binomial" )
+summary(lg_model)
+```
+```{r}
+all(predict(lg_model) < 0.3)
+any(predict(lg_model) < 1 )
+```
+```{r}
+head(predict(lg_model))
+```
+
+```{r}
+lg_model_pred = ifelse(predict(lg_model, type = "link") > 0.5, "male", "female")
+```
+
+```{r}
+#Calculating accuracy
+
+calc_class_err = function(actual, predicted) {
+  mean(actual != predicted)
+}
+
+```
+
+```{r}
+calc_class_err(actual = train_d$sex, predicted = lg_model_pred)
+```
+```{r}
+train_table = table(predicted = lg_model_pred, actual = train_d$sex)
+train_table
+```
+```{r}
+train_con_mat = confusionMatrix(train_table, positive = "male")
+c(train_con_mat$overall["Accuracy"], 
+  train_con_mat$byClass["Sensitivity"], 
+  train_con_mat$byClass["Specificity"])
+```
+

@@ -1,0 +1,116 @@
+---
+title: "AnnovaPractice"
+author: "Jitesh Rawat"
+date: "2/23/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(lattice)
+library(car)
+```
+
+```{r}
+head(penguins)
+```
+
+```{r}
+pdata <- penguins %>% 
+  select(species,bill_length_mm)
+```
+
+```{r}
+summary(pdata)
+```
+
+```{r}
+ggplot(pdata)+
+  aes(species,bill_length_mm,color=species)+
+  geom_jitter()+
+  theme(legend.position="none")+
+  labs(title="Species vs Bill Length")
+```
+```{r}
+#Checking normailty visually
+
+res_aov <- aov(bill_length_mm ~ species,data=pdata)
+
+par(mfrow=c(1,2)) # combine plots
+
+# histogram
+hist(res_aov$residuals)
+
+qqnorm(res_aov$residuals,xlab = "norm quantiles")
+
+```
+
+```{r}
+shapiro.test(res_aov$residuals)
+```
+```{r}
+#we check homogenity of variances wiht simple doptplot
+dotplot(bill_length_mm ~ species, data =pdata)
+#Its pretty clear that the variances of the groups are similar
+```
+```{r}
+
+#still we apply levene test 
+leveneTest(bill_length_mm ~ species, data=pdata)
+#Doing this we see that p-value is .108 that is pretty good to say that the test says we accept null hypothesis that is variances are constant in groups 
+
+```
+```{r}
+#We see some visulalizations before annova
+
+ggplot(pdata)+
+  aes(species,bill_length_mm,color=species)+
+  geom_boxplot()+
+  theme(legend.position="none")+
+  labs(title="Box plots across the Groups")
+
+#from this plot we can see that species Adelie has smallest bills
+
+```
+
+```{r}
+#Lets apply one wat annova
+
+oneway.test(bill_length_mm ~ species,
+            data = pdata,
+            var.equal = TRUE # assuming equl variances
+            )
+```
+```{r}
+#This one way annova methods pvalue turns out to be less than 0.05 which means that the means are not equal
+#Just like how we saw from boxplot that one species has different bill length from other species
+```
+
+```{r}
+#install.packages("multcomp")
+
+library(multcomp)
+# Tukey HSD test:
+post_test <- glht(res_aov,
+  linfct = mcp(species = "Tukey")
+)
+summary(post_test)
+
+```
+
+```{r}
+#by adjusted pvalues we can see that groups have same mean or not
+
+par(mar = c(3, 8, 3, 3))
+plot(post_test)
+```
+
+```{r}
+
+```
+

@@ -1,0 +1,114 @@
+---
+title: "202-Assignment"
+author: "Jitesh Rawat"
+date: "2/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(caret)
+library(MVN)
+library(MASS)
+library(gridExtra)
+library(funModeling)
+```
+```{r}
+data <- read.csv('C:/Users/Jitesh/Documents/202Assignment/CardioGoodFitness.csv')
+head(data)
+```
+
+```{r}
+data$gender[data$Gender=="Male"] = 0
+data$gender[data$Gender=="Female"] = 1
+data$m_status[data$MaritalStatus=="Single"] = 0
+data$m_status[data$MaritalStatus=="Partnered"] = 1
+data$product[data$Product=="TM195"] = 0
+data$product[data$Product=="TM498"] = 1
+data$product[data$Product=="TM798"] = 2
+```
+
+
+```{r}
+#Lets try some plots so we can infer something from plots
+
+featurePlot(x= data[],y= data$Miles )
+#we cant actually see much relation from this plot
+```
+
+```{r}
+plot_num(data)
+#here we try to see distribution of variables and whether they are normal or not
+```
+```{r}
+freq(data)
+```
+```{r}
+#Forward Model...
+
+sample_size <- floor(0.75 * nrow(data))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(data)), size = sample_size)
+
+train <- data[train_ind, ]
+test <- data[-train_ind, ]
+
+nrow(train)
+nrow(test)
+head(train)
+head(test)
+
+
+```
+```{r}
+
+model1 <- lm(Miles~Fitness, data=train)
+summary(model1)
+
+```
+```{r}
+model2 <- lm(Miles~Fitness+Age, data= train)
+summary(model2)
+```
+```{r}
+model3 <- lm(Miles~Fitness+Usage, data= train)
+summary(model3)
+```
+
+```{r}
+model4 <- lm(Miles~Fitness+Usage+Age, data= train)
+summary(model4)
+
+```
+```{r}
+model5 <- lm(Miles~Fitness+Usage+Age+gender, data= train)
+summary(model5)
+#we see that model 3 turns out to be best model in forward modelling
+```
+```{r}
+#Backward modelling
+
+m1 <- lm(Miles~., data= data)
+summary(m1)
+```
+```{r}
+m2= lm(Miles~Education+Usage+Fitness+Income, data= data)
+summary(m2)
+```
+
+```{r}
+m3= lm(Miles~Education+Usage+Fitness, data= data)
+summary(m3)
+```
+```{r}
+m4= lm(Miles~Usage, data= data)
+summary(m4)
+```
+```{r}
+#From this we can see that surprisingly model1 turns out to be best model 
+```
+

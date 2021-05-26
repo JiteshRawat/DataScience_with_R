@@ -1,0 +1,199 @@
+---
+title: "MDSC-202-Assignment-20230"
+author: "jyotin padhi"
+date: "20 February 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Uploading the required libraries
+
+library(tidyverse)
+library(gridExtra)
+library(funModeling)
+```
+
+```{r}
+data<-read.csv("D:/datasets/CardioGoodFitness.csv")
+```
+
+
+```{r}
+head(data)
+```
+
+
+```{r}
+#getting the column names of the data
+names(data)
+
+#getting the dimensions of data
+dim(data)
+```
+
+
+```{r}
+summary(data)
+```
+
+
+```{r}
+attach(data)
+by(data,INDICES=Product,FUN=summary)
+by(data,INDICES = Gender,FUN = summary)
+```
+
+
+```{r}
+#check for na values
+sum(is.na(data))
+
+#check for duplicated values
+sum(duplicated(data))
+```
+
+
+```{r}
+grid.arrange(ggplot(data, aes(x=Age, y=Miles))+geom_point(),
+             ggplot(data, aes(Age))+geom_histogram(),
+             ggplot(data, aes(Age))+geom_density(),
+             ggplot(data, aes(Age, Miles))+geom_dotplot(binaxis='y', stackdir='center'), 
+             nrow=2, top='Age vs Miles')
+```
+We can see the scatter plot, histograms, density and dotplots of the Age variable against Miles
+
+
+```{r}
+freq(data)
+```
+
+```{r}
+grid.arrange(ggplot(data, aes(x=Usage, y=Miles))+geom_point(),
+             ggplot(data, aes(Usage))+geom_histogram(),
+             ggplot(data, aes(Usage))+geom_density(),
+             ggplot(data, aes(Usage, Miles))+geom_dotplot(binaxis='y', stackdir='center'), 
+             nrow=2, top='Usage vs Miles')
+```
+
+```{r}
+grid.arrange(ggplot(data, aes(x=Fitness, y=Miles))+geom_point(),
+             ggplot(data, aes(Fitness))+geom_histogram(),
+             ggplot(data, aes(Fitness))+geom_density(),
+             ggplot(data, aes(Fitness, Miles))+geom_dotplot(binaxis='y', stackdir='center'), 
+             nrow=2, top='Fitness vs Miles')
+```
+
+```{r}
+grid.arrange(ggplot(data, aes(x=Income, y=Miles))+geom_point(),
+             ggplot(data, aes(Income))+geom_histogram(),
+             ggplot(data, aes(Income))+geom_density(),
+             ggplot(data, aes(Income, Miles))+geom_dotplot(binaxis='y', stackdir='center'), 
+             nrow=2, top='Income vs Miles')
+```
+
+```{r}
+grid.arrange(ggplot(data, aes(x=Gender, y=Miles))+geom_bar(stat="identity"),
+             ggplot(data, aes(x=Gender, y=Miles))+geom_col(),
+             nrow=2, top='Gender vs Miles')
+```
+
+```{r}
+ggplot(data, aes(x=Product, y=Age, fill=Gender), position="fill")+geom_col()
+```
+
+##Encoding the categorical variables
+```{r}
+data$gender[data$Gender=="Male"] = 0
+data$gender[data$Gender=="Female"] = 1
+```
+
+```{r}
+data$m_status[data$MaritalStatus=="Single"] = 0
+data$m_status[data$MaritalStatus=="Partnered"] = 1
+```
+
+```{r}
+data$product[data$Product=="TM195"] = 0
+data$product[data$Product=="TM498"] = 1
+data$product[data$Product=="TM798"] = 2
+```
+
+
+Forward Modelling
+===
+```{r}
+smp_size <- floor(0.75 * nrow(data))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(data)), size = smp_size)
+
+train <- data[train_ind, ]
+test <- data[-train_ind, ]
+
+nrow(train)
+nrow(test)
+head(train)
+head(test)
+```
+
+##Inferential Statistics
+```{r}
+model_1 <- lm(Miles~Usage, data=train)
+summary(model_1)
+
+model_2 <- lm(Miles~Usage+Fitness, data=train)
+summary(model_2)
+```
+
+```{r}
+model_3 <- lm(Miles~Usage+Fitness+Income, data=train)
+summary(model_3)
+```
+
+
+```{r}
+model_4 <- lm(Miles~Usage+Fitness+m_status, data=train)
+summary(model_4)
+```
+
+```{r}
+model_5 <- lm(Miles~Usage+Fitness+Age, data=train)
+summary(model_5)
+```
+
+```{r}
+model_6 <- lm(Miles~Usage+Fitness+gender, data=train)
+summary(model_6)
+```
+
+```{r}
+model_7 <- lm(Miles~Usage+Fitness+product, data=train)
+summary(model_7)
+```
+
+Hence model_2 is best so far as found in forward modelling
+
+
+Backward Modelling
+===
+
+```{r}
+mod_1 <-lm(Miles~product+Age+gender+Education+m_status+Usage+Fitness+Income, data=train)
+summary(mod_1)
+```
+
+
+```{r}
+mod_2 <- lm(Miles~Usage+Fitness+Education, data=train)
+summary(mod_2)
+```
+
+```{r}
+mod_3 <- lm(Miles~Usage+Fitness, data=train)
+summary(mod_3)
+```
+
+Hence mod_3 is the best fit model found as per the backward modelling

@@ -1,0 +1,155 @@
+---
+title: "Two-Way ANOVA"
+author: "Dr.Sampath"
+date: "24/02/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Loading required library
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+library(tidyverse)
+library(lattice)
+library(car)
+```
+
+```{r}
+glimpse(penguins)
+```
+There are 344 observations in 8 features. We will take three features from the given data namely, `species`,`flipper_length_mm` and `sex`.
+```{r}
+DATA <- penguins %>% 
+  select(species,flipper_length_mm,sex)
+DATA <- na.omit(DATA) # Removed 11 observations
+head(DATA)
+```
+```{r}
+summary(DATA)
+```
+Out of 333 observations, 165 for female and 168 for male.
+
+Plot
+===
+
+```{r}
+ggplot(DATA)+
+  aes(species,flipper_length_mm,color=sex)+
+  geom_jitter(na.rm = TRUE)+ #  geom_point(position = "jitter")
+  theme(legend.position="right")+
+  labs(title="Species vs Flipper Length")
+```
+
+
+Here, the factor is the `species` variable which contains 3 groups (Adelie, Chinstrap and Gentoo). In each group, had two gender species.
+
+Testing Hypothesis
+===
+
+
+The null and alternative hypothesis of an ANOVA are:
+
+- $H_0:$ The three species are equal in terms of flipper length
+
+- $H_1:$ At least one mean is different.
+
+
+```{r}
+ggplot(DATA)+
+  aes(species,flipper_length_mm,color=sex)+
+  geom_boxplot(na.rm = TRUE)+ # color, shape 
+  theme(legend.position="left")+
+  labs(title="Species vs Flipper Length")
+```
+
+
+We can see that there are outliers in Adelie group and in each group female penguine flipper length is small than male penguine in the data.
+
+```{r}
+anova_two_way <- aov(flipper_length_mm ~ species+sex,data=DATA
+               )
+```
+
+```{r}
+summary(anova_two_way)
+```
+
+
+
+As p-values are near to zero for two factors, we reject the null hypothesis. Thus there is a significance difference between in the popuplation mean across the factors.
+
+```{r}
+par(mfrow=c(1,2)) # combine plots
+plot(anova_two_way,3)
+plot(anova_two_way,2)
+```
+
+
+The observations 27, 85, and 124 effecting on heteroscedasticity and normal QQ plot suggest that the residuals are normal. We can check heteroscedasticity and normality statistically using leveneTest and Shapiro-Wilk test respectively.
+
+```{r}
+shapiro.test(anova_two_way$residuals)
+```
+
+
+As p-value (0.2952) is larger than 0.001, we do not reject null hypothesis. Thus the residuals are normal statistically.
+
+Testing Hypothesis for Levense Test:
+
+- $H_0:$ Variances are equal
+- $H_1:$ at least one varaince is different
+
+```{r}
+# Levene's test from car library
+leveneTest(flipper_length_mm ~ species*sex, data=DATA)
+```
+
+As p-value (0.03652) is larger than level of significance, we do not reject null hypothesis.
+
+
+
+```{r}
+Tk <- TukeyHSD(anova_two_way)
+Tk
+```
+
+
+```{r}
+plot(Tk)
+```
+
+No one of the species groups pairwise have the same mean.
+
+Exercise:
+===
+- Perform Two-Way ANOVA for `bill_length_mm` with two factors `species` and `gender`
+
+Assignment-IV:
+===
+
+
+
+This assignment for 20 Marks
+
+ **Answer the following for the dataset 'ToothGrowth' from CRAN**
+ 
+- Perform Exploratory Data Analysis (must include scatter plots, box-plots) (5 Marks)
+- Choose your qualitative and quantitative variables in given data and perform One-Way ANOVA (5 Marks)
+- Choose your variables from the data to perform Two-Way ANOVA (5 Marks)
+- Presentation (5 Marks)
+  
+
+```{r}
+head(ToothGrowth)
+```
+
+
+
+
+

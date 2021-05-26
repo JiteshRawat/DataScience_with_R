@@ -1,0 +1,130 @@
+---
+title: "Assignment_2"
+author: "Jitesh Rawat"
+date: "2/4/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+```{r}
+idata = as_tibble(iris)#loading iris dataset
+head(idata)#taking a look at data
+plot = ggplot(data = idata, aes(y = Sepal.Length, x = factor(Species),col= Sepal.Width))#creating ggplot 
+plot2= ggplot(data = idata, aes(y = Petal.Length, x = factor(Species),col= Petal.Width))
+```
+```{r}
+plot+geom_point()#the use of geom_point() function to plot the datas sepal length/sepalwidth
+```
+
+
+```{r}
+
+plot+geom_density()
+plot2+geom_density()#Ploting density 
+
+```
+
+```{r}
+ggplot(idata, aes(x= Sepal.Length))+geom_histogram()#representing data in terms of histograms
+```
+
+```{r}
+plot+geom_boxplot()#representing data in terms of boxplot
+```
+```{r}
+p <- ggplot(iris, aes(sample = Sepal.Width))
+p + geom_qq() + stat_qq_line()#geom qq for checking the normality of data
+
+```
+
+```{r}
+q <- plot+geom_point()
+q + facet_grid(Species~.)#faceting using facet grid
+```
+```{r}
+q+facet_wrap(vars(Species))#facteing using facet wrap
+```
+```{r}
+plot + stat_density()#plotting the statistical density of plot
+```
+
+```{r}
+
+#applying logarithm to coorodinates
+plotx <- ggplot(iris, aes(x <- Sepal.Length,y <- Sepal.Width)) + geom_point()
+plotx + scale_x_log10()
+plotx + scale_y_log10()
+
+ggplot(data = idata,aes(x=Sepal.Length,y=Species,col = Sepal.Width))+geom_point()+scale_x_log10()
+ggplot(data = idata,aes(y=Petal.Length,x=Species,col = Petal.Width))+geom_point()+scale_y_log10()
+
+```
+
+```{r}
+#applying square root on coordinate axes
+plotx+scale_x_sqrt()
+plotx+scale_y_sqrt()
+
+
+```
+```{r}
+plotx + theme_classic()#theming
+
+```
+```{r}
+plot + geom_point() + theme_bw()#theming
+```
+
+```{r}
+plotx + scale_x_continuous()#scaling but his is default scaling that geom point or ggplot applies
+
+```
+
+```{r}
+
+plotx + xlim(NA,8)#applying limitation in x axis up to 8 which covers entire data
+
+```
+
+```{r}
+plotx + scale_y_continuous()#scaling the y axis
+
+```
+```{r}
+plotx+ ylim(1,5)#applying the limit to y axis
+```
+```{r}
+plotx+ coord_flip()
+
+```
+```{r}
+plotx+ labs(x= "Sepal length",y=  "Sepal width")#applying label using label function
+
+```
+```{r}
+plotx+ ggtitle("Plot of sepal length and width")#giving title to plot
+```
+
+```{r}
+plotx + xlab("Sepal Length") + ylab("Sepal Width")#labelling
+
+
+```
+```{r}
+plotx+coord_cartesian(expand = TRUE)#it is often used to zoom plot
+```
+
+```{r}
+
+ggplot(data = idata,aes(x=Petal.Width, y=Petal.Length, position_dodge(width= NULL)))+ geom_point()#
+
+
+```
+

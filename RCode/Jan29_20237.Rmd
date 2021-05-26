@@ -1,0 +1,123 @@
+---
+title: "Assignment_2"
+author: "Jitesh Rawat"
+date: "1/29/2021"
+output:
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("tidyverse")
+datasets::iris
+
+head(iris)
+```
+
+```{r}
+#Basic Plotting
+
+#---------------------------Scatter Plots------------------------------------------
+
+plot( iris$Petal.Width,col= "red")
+
+```
+
+```{r}
+#------------------------- Histograms --------------------------------------------
+
+hist(iris$Petal.Length, main= "Histogram plot of petal length", xlab = "Petal_length", col = 'cyan')
+```
+
+```{r}
+
+#------------------------------ Density functions -----------------------------------------------------
+
+plot(density(iris$Petal.Length),main= 'Density of Petal length' ,col="magenta")
+
+```
+
+```{r}
+
+#----------------------------------- Abline function ----------------------------------
+
+plot(iris$Sepal.Length,iris$Sepal.Width, col="red" , xlab = "sepal length", ylab= "sepal width", main= "Use of abline function on iris     dataset")
+abline(h=iris$Sepal.Width)
+
+```
+
+
+```{r}
+
+#----------------------------- Use of Legends --------------------------------------------------
+
+
+plot(iris$Petal.Width,iris$Sepal.Width, col= c("red","blue"),xlab= "petal_width",ylab= "sepal_width" )
+legend("topleft",legend= c("petal_width","sepal_width"), col = c("red","blue"), lty = 1:1)
+
+```
+
+
+```{r}
+
+#--------------------------------- Using Pie charts ----------------------------------------
+
+table = table(iris$Sepal.Length)
+pie(table,main="sepal length")
+
+
+```
+```{r}
+#------------------------------------- Box Plots -------------------------------------------
+
+boxplot(iris$Sepal.Length,iris$Sepal.Width,data= iris,col = c("red", "blue"))
+
+```
+
+
+```{r}
+#-------------------------Using dplyr functions ------------------------
+
+#Using mutate() function
+
+changed_data= mutate(iris, Sepal_in_millimetres = 100*Sepal.Length )
+head(changed_data)
+#Using mutate_at() function
+
+iris %>% mutate_at(c("Sepal.Length"), log)
+
+
+```
+
+```{r}
+
+#----------------------- Select function -------------------------------------------
+
+dplyr::select(iris,Sepal.Length)
+
+```
+
+```{r}
+#-------------------------Pull Function ----------------------------
+
+pull(iris,Species)
+```
+
+```{r}
+
+#------------------------- use of sample_n() function --------------------
+
+sample_n(iris,4)
+```
+```{r}
+
+#-----------------------Use of slice function ------------------------
+
+iris %>% slice(n())
+slice(iris, 1:3)
+```
+
+

@@ -1,0 +1,56 @@
+---
+title: "DA2"
+author: "Jitesh Rawat"
+date: "4/1/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(ISLR)
+
+```
+
+```{r}
+data <- ISLR::Default
+head(data)
+?ISLR::Default
+```
+
+```{r}
+## 60% of the sample size
+smp_size <- floor(0.60 * nrow(data))
+
+## set the seed to make your partition reproducible
+set.seed(123)
+train_ind <- sample(seq_len(nrow(data)), size = smp_size)
+
+train <- data[train_ind, ]
+test <- data[-train_ind, ]
+dim(train)
+dim(test)
+```
+```{r}
+library(MASS)
+
+model_lda = lda(default ~ balance+ student, data = train)
+model_lda
+```
+
+```{r}
+plot(model_lda)
+```
+
+```{r}
+library(nortest)
+ad.test(train$balance)
+```
+```{r}
+
+```
+
